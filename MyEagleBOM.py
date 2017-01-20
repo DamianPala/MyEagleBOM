@@ -4,6 +4,7 @@ Created on 19.01.2017
 @author: Haz
 '''
 import csv
+from _elementtree import parse
 
 filename = 'Fingerprint_Sensor_Button_HW'
 
@@ -17,6 +18,44 @@ class ElementRowsWithSamePackage:
     elementRowWithSamePackage = []
     def __del__(self):
         print "deling", self
+        
+        
+class Bom:
+    bom = []
+    
+    def ParseCsv(self):
+        pass
+    
+    def GetDesignator(self, rowNum):
+        return self.bom[rowNum][0] 
+
+    def GetQuantity(self, rowNum):
+        return self.bom[rowNum][1]
+    
+    def GetValue(self, rowNum):
+        return self.bom[rowNum][2]
+    
+    def GetPavkage(self, rowNum):
+        return self.bom[rowNum][3]
+    
+    def GetItemFromCsvRow(self, csvRow):
+        pass
+    
+    def InsertItem(self, csvRow):
+        pass
+    
+    def IsThisItemInBom(self, csvRow):
+        pass
+    
+    def IsItemHasSamePackageAndValue(self, item):
+        pass
+    
+    def SortBomByDesignatorType(self):
+        pass
+    
+    def SortItemsByValue(self):
+        pass
+    
 
 class ParseEagleCSV:
     elementRowsGroupedByTypeList = []
@@ -102,6 +141,36 @@ class ParseEagleCSV:
         
         return elementRowsWithSamePackageList
         
+    def MergeRows(self, row1, row2):
+        mergedRow = []
+        for cell in row1:
+            mergedRow.append(cell)
+        
+        mergedCell = []
+        mergedCell.append(mergedRow[0])
+        mergedCell.append(row2[0])
+        mergedRow[0] = mergedCell
+        
+        return mergedRow
+    
+    def Test(self):
+        print self.MergeRows(self.csvFile[1], self.csvFile[2])
+        
+    def CreateBOM(self):
+        uniqueDesignatorTypeList = self.GetUniqueDesignetorTypeList()
+        bom = []
+        isFirstRow = True
+        
+        for designator in uniqueDesignatorTypeList:
+            for row in self.csvFile:
+                if (isFirstRow != True):                    
+                    if (designator == self.GetDesignatorType(row[0]) ):
+                        
+                        pass
+                else:
+                    pass
+                
+                isFirstRow = False
         
         
 parseEagleCSV = ParseEagleCSV(OpenCsvFile(filename))
@@ -123,3 +192,5 @@ OpenCsvFile(filename)
 print parseEagleCSV.GetDesignatorType('IC344')
 
 parseEagleCSV.GetElementRowsGroupedByType()
+
+parseEagleCSV.Test()
