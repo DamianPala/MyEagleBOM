@@ -21,10 +21,24 @@ class ElementRowsWithSamePackage:
         
         
 class Bom:
+#     In CSV
+#     C2    1u 25V    C-EUC1206    C1206    CAPACITOR, European symbol    
+#     In BOM should be
+#     C2    1    1u 25V    C1206
+    
+    
+    
     bom = []
     
+    def __init__(self, csvFile):
+        self.csvFile = csvFile  
+    
     def ParseCsv(self):
-        pass
+#         for row in self.csvFile:
+#             print row
+        del self.csvFile[0]
+
+        print self.GetItemFromCsvRow(self.csvFile[0])
     
     def GetDesignator(self, rowNum):
         return self.bom[rowNum][0] 
@@ -39,12 +53,22 @@ class Bom:
         return self.bom[rowNum][3]
     
     def GetItemFromCsvRow(self, csvRow):
+        item = []
+        item.append(csvRow[0])
+        item.append(1)
+        item.append(csvRow[1])
+        item.append(csvRow[3])
+        
+        return item
+    
+    def InsertItem(self, item):
         pass
     
-    def InsertItem(self, csvRow):
-        pass
-    
-    def IsThisItemInBom(self, csvRow):
+    def IsThisItemInBom(self, item):
+        notInList = True
+        for bomItem in self.bom:
+            if (bomItem[0] == item[0]):
+                notInList = False
         pass
     
     def IsItemHasSamePackageAndValue(self, item):
@@ -54,6 +78,9 @@ class Bom:
         pass
     
     def SortItemsByValue(self):
+        pass
+    
+    def TryInsertItemIntoBom(self):
         pass
     
 
@@ -175,22 +202,24 @@ class ParseEagleCSV:
         
 parseEagleCSV = ParseEagleCSV(OpenCsvFile(filename))
 
+bom = Bom(OpenCsvFile(filename))
+bom.ParseCsv()
 
 
-class MyFirstLvlList:
-    item = "abc"
-    
-myFirstLvlList = MyFirstLvlList
-    
-myList = []
-myList.append(myFirstLvlList)
-
-print myList[0].item
-
-
-OpenCsvFile(filename)
-print parseEagleCSV.GetDesignatorType('IC344')
-
-parseEagleCSV.GetElementRowsGroupedByType()
-
-parseEagleCSV.Test()
+# class MyFirstLvlList:
+#     item = "abc"
+#     
+# myFirstLvlList = MyFirstLvlList
+#     
+# myList = []
+# myList.append(myFirstLvlList)
+# 
+# print myList[0].item
+# 
+# 
+# OpenCsvFile(filename)
+# print parseEagleCSV.GetDesignatorType('IC344')
+# 
+# parseEagleCSV.GetElementRowsGroupedByType()
+# 
+# parseEagleCSV.Test()
