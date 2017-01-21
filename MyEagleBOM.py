@@ -33,12 +33,34 @@ class Bom:
     def __init__(self, csvFile):
         self.csvFile = csvFile  
     
-    def ParseCsv(self):
+    def CreateBom(self):
 #         for row in self.csvFile:
 #             print row
+        
+        
         del self.csvFile[0]
+        
+        
+#         self.bom.append([['C2'], 1, '100n 10V', 'C0603'])
+# 
+#         self.bom.append(self.GetItemFromCsvRow(self.csvFile[0]))
+#         
+#         self.bom.append([['C3'], 1, '10u 6V3', 'C1206'])
+#         item = self.GetItemFromCsvRow(self.csvFile[5])
+# #         print item
+#         self.TryInsertItemIntoBom(item)
 
-        print self.GetItemFromCsvRow(self.csvFile[0])
+        for row in self.csvFile:
+            item = self.GetItemFromCsvRow(row)
+            self.TryInsertItemIntoBom(item)
+        
+        
+        for item in self.bom:
+            print item
+            
+#         print self.GetItemFromCsvRow(self.csvFile[1])[0]
+#         print self.IsThisItemInBom(self.GetItemFromCsvRow(self.csvFile[1]))
+
     
     def GetDesignator(self, rowNum):
         return self.bom[rowNum][0] 
@@ -54,7 +76,7 @@ class Bom:
     
     def GetItemFromCsvRow(self, csvRow):
         item = []
-        item.append(csvRow[0])
+        item.append([csvRow[0]])
         item.append(1)
         item.append(csvRow[1])
         item.append(csvRow[3])
@@ -62,17 +84,22 @@ class Bom:
         return item
     
     def InsertItem(self, item):
-        pass
+        self.bom.append(item)
     
     def IsThisItemInBom(self, item):
-        notInList = True
+        itemInList = False
         for bomItem in self.bom:
-            if (bomItem[0] == item[0]):
-                notInList = False
-        pass
+            for designator in bomItem[0]:
+                if (designator == item[0][0]):
+                    itemInList = True
+        
+        return itemInList
     
-    def IsItemHasSamePackageAndValue(self, item):
-        pass
+    def IsItemHasSamePackageAndValue(self, item1, item2):
+        if (item1[2] == item2[2]) and (item1[3] == item2[3]):
+            return True
+        else:
+            return False
     
     def SortBomByDesignatorType(self):
         pass
@@ -80,9 +107,30 @@ class Bom:
     def SortItemsByValue(self):
         pass
     
-    def TryInsertItemIntoBom(self):
-        pass
+    def MergeItemWithItemInBom(self, itemInBom, itemToMerge):
+        itemInBom[0].append(itemToMerge[0])
+        self.IncrementItemNumberInBomItem(itemInBom)
+        
+    def IncrementItemNumberInBomItem(self, item):
+        item[1] += 1
     
+    def TryInsertItemIntoBom(self, item):
+        if (self.IsThisItemInBom(item) == False):
+            if self.TryMergeItemWithItemInBom(item):
+                return True
+            else:
+                self.InsertItem(item)
+
+            return True
+        else:
+            return False
+
+    def TryMergeItemWithItemInBom(self, item):
+        for itemInBom in self.bom:                
+            if self.IsItemHasSamePackageAndValue(itemInBom, item):
+                self.MergeItemWithItemInBom(itemInBom, item)                    
+                return True
+        
 
 class ParseEagleCSV:
     elementRowsGroupedByTypeList = []
@@ -203,23 +251,4 @@ class ParseEagleCSV:
 parseEagleCSV = ParseEagleCSV(OpenCsvFile(filename))
 
 bom = Bom(OpenCsvFile(filename))
-bom.ParseCsv()
-
-
-# class MyFirstLvlList:
-#     item = "abc"
-#     
-# myFirstLvlList = MyFirstLvlList
-#     
-# myList = []
-# myList.append(myFirstLvlList)
-# 
-# print myList[0].item
-# 
-# 
-# OpenCsvFile(filename)
-# print parseEagleCSV.GetDesignatorType('IC344')
-# 
-# parseEagleCSV.GetElementRowsGroupedByType()
-# 
-# parseEagleCSV.Test()
+bom.CreateBom()
