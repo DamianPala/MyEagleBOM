@@ -131,6 +131,51 @@ class Bom:
                 self.MergeItemWithItemInBom(itemInBom, item)                    
                 return True
         
+        
+        
+class ConvertUnits:
+    metricPrefixValues = {
+            'G' : 1E9,
+            'M' : 1E6,
+            'k' : 1E3,
+            'm' : 1E-3,
+            'u' : 1E-6,
+            'n' : 1E-9,
+            'p' : 1E-12,
+        }
+    
+    @staticmethod
+    def ToNumericValue(stringValue):
+        metricPrefix = 0
+        fractionString = ""
+        
+        for i, char in enumerate(stringValue):
+            if ConvertUnits.IsMetricPrefix(char):
+                metricPrefix = ConvertUnits.GetMetricPrefixValue(char)
+                fractionString += '.' 
+            else:
+                fractionString += stringValue[i]
+
+        return float(fractionString) * metricPrefix
+    
+    @staticmethod
+    def IsMetricPrefix(char):
+        if char.isdigit() == False:
+            return True
+        else:
+            return False
+        
+    @staticmethod
+    def GetMetricPrefixValue(char):
+        return ConvertUnits.metricPrefixValues.get(char, 'None')    
+    
+            
+
+print ConvertUnits.ToNumericValue("100n") 
+        
+        
+        
+        
 
 class ParseEagleCSV:
     elementRowsGroupedByTypeList = []
@@ -250,5 +295,7 @@ class ParseEagleCSV:
         
 parseEagleCSV = ParseEagleCSV(OpenCsvFile(filename))
 
-bom = Bom(OpenCsvFile(filename))
-bom.CreateBom()
+
+
+# bom = Bom(OpenCsvFile(filename))
+# bom.CreateBom()
