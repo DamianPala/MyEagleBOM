@@ -5,6 +5,9 @@ Created on 19.01.2017
 '''
 import csv
 from _elementtree import parse
+from collections import defaultdict
+from operator import itemgetter
+from audioop import reverse
 
 filename = 'Fingerprint_Sensor_Button_HW'
 
@@ -29,6 +32,7 @@ class Bom:
     
     
     bom = []
+    bomByDesignator = defaultdict(list)
     
     def __init__(self, csvFile):
         self.csvFile = csvFile  
@@ -53,10 +57,12 @@ class Bom:
         for row in self.csvFile:
             item = self.GetItemFromCsvRow(row)
             self.TryInsertItemIntoBom(item)
+            
+        self.SortBom()
         
         
-        for item in self.bom:
-            print item
+#         for item in self.bom:
+#             print item
             
 #         print self.GetItemFromCsvRow(self.csvFile[1])[0]
 #         print self.IsThisItemInBom(self.GetItemFromCsvRow(self.csvFile[1]))
@@ -100,12 +106,40 @@ class Bom:
             return True
         else:
             return False
+        
+    def SortBom(self):
+        self.SortBomByDesignatorType()
+#         self.SortItemsByValue(bom.bomByDesignator['C'])
+        
+#         print self.bomByDesignator['C']
+#         self.SortItemsByValue(bom.bomByDesignator['R'])
+
+        print self.bomByDesignator['R']
+        print self.GetItemValueFromDescription(self.bom[25])
     
-    def SortBomByDesignatorType(self):
-        pass
+    def SortBomByDesignatorType(self):        
+        for item in self.bom:
+            self.bomByDesignator[self.GetDesignatorType(item[0][0])].append(item)        
     
-    def SortItemsByValue(self):
-        pass
+    def SortItemsByValue(self, items):
+        dic = dict()
+        tempList = list()
+        for item in items:
+            dic[self.GetItemValueFromDescription(item)] = item
+        
+        diclist = sorted(dic.keys())
+        for item in diclist:
+            tempList.append(dic[item])
+
+        for i, item in enumerate(items):
+            items[i] = tempList[i]        
+    
+    def GetItemValueFromDescription(self, item):
+        description = item[2]
+        value = description.partition(' ')[0]
+        
+        return ConvertUnits.ToNumericValue(value)
+    
     
     def MergeItemWithItemInBom(self, itemInBom, itemToMerge):
         itemInBom[0].append(itemToMerge[0])
@@ -130,7 +164,19 @@ class Bom:
             if self.IsItemHasSamePackageAndValue(itemInBom, item):
                 self.MergeItemWithItemInBom(itemInBom, item)                    
                 return True
-        
+    
+    def GetDesignatorType(self, designator):
+        for char in designator:
+            if(char.isdigit()):
+                designatorType = designator.partition(char)
+                return designatorType[0]
+    
+    def GetUniqueDesignetorTypeList(self):
+        uniqueDesigantorTypeList = []
+        for row in self.csvFile:
+            uniqueDesigantorTypeList.append(self.GetDesignatorType(row[0]))
+            uniqueDesigantorTypeList = list(set(uniqueDesigantorTypeList))
+        return uniqueDesigantorTypeList
         
         
 class ConvertUnits:
@@ -155,7 +201,7 @@ class ConvertUnits:
                 fractionString += '.' 
             else:
                 fractionString += stringValue[i]
-
+        
         return float(fractionString) * metricPrefix
     
     @staticmethod
@@ -296,6 +342,8 @@ class ParseEagleCSV:
 parseEagleCSV = ParseEagleCSV(OpenCsvFile(filename))
 
 
-
-# bom = Bom(OpenCsvFile(filename))
-# bom.CreateBom()
+  
+bom = Bom(OpenCsvFile(filename))
+bom.CreateBom()
+# bom.SortBomByDesignatorType()
+# bom.SortItemsByValue(bom.bomByDesignator['C'])
