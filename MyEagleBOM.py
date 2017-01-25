@@ -12,8 +12,30 @@ from collections import defaultdict
 fileName = sys.argv[1:]
 scritDirectory = os.path.dirname(sys.argv[0])
 
-# fileName.append("Fingerprint_Sensor_Button_HW.csv")
+fileName.append("Fingerprint_Sensor_Button_HW.csv")
+fileName.append("Fingerprint_Sensor_Button_HW2.csv")
       
+def OpenCsvFile(fileName):
+    with open(fileName, 'rt') as csvfile:
+        reader = csv.reader(csvfile, delimiter = ';')
+        reader = list(reader)
+    return reader
+
+
+def MergeCsvFilesToOneObject(csvFileList):
+    csvObject = []
+    for fileIterator, csvFile in enumerate(csvFileList):
+        with open(csvFile, 'rt') as csvfile:
+            reader = csv.reader(csvfile, delimiter = ';')
+            for i, item in enumerate(reader):
+                if fileIterator > 0:
+                    if i > 0:
+                        csvObject.append(item)
+                else:
+                    csvObject.append(item)
+            
+    return csvObject
+        
         
 class Bom:
 #     In CSV
@@ -24,18 +46,13 @@ class Bom:
     bom = []
     bomByDesignator = defaultdict(list)
     
-    def __init__(self, fileName=None):
-        if fileName != None:
-            self.csvFile = self.OpenCsvFile(fileName)  
-    
-    def OpenCsvFile(self, filename):
-        with open(filename, 'rt') as csvfile:
-            reader = csv.reader(csvfile, delimiter = ';')
-            reader = list(reader)
-        return reader
+    def __init__(self, csvFile=None):
+        if csvFile != None:
+            self.csvFile = csvFile   
+
     
     def CreateBom(self):       
-        "Delete header row"
+        """Delete header row"""
         del self.csvFile[0]
 
         for row in self.csvFile:
@@ -265,11 +282,20 @@ def show_exception_and_exit(exc_type, exc_value, tb):
 
 sys.excepthook = show_exception_and_exit
 
-if fileName:
-    bom = Bom(fileName[0])
+if len(fileName) == 1:
+    csvFile = OpenCsvFile(fileName[0])
+    bom = Bom(csvFile)
     bom.CreateBom()
     exportBom = ExportBom(bom)
     exportBom.WriteCsv("Bom")
+elif len(fileName) > 1:
+    csvFile = MergeCsvFilesToOneObject(fileName)
+    bom = Bom(csvFile)
+    bom.CreateBom()
+    exportBom = ExportBom(bom)
+    exportBom.WriteCsv("Bom")
+else:
+    """Do nothing"""
 
 
 
