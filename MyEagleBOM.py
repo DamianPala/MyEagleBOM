@@ -8,6 +8,7 @@ from _elementtree import parse
 from collections import defaultdict
 from operator import itemgetter
 from audioop import reverse
+from itertools import count
 
 filename = 'Fingerprint_Sensor_Button_HW'
 
@@ -114,25 +115,52 @@ class Bom:
 #         print self.bomByDesignator['C']
 #         self.SortItemsByValue(bom.bomByDesignator['R'])
 
-        print self.bomByDesignator['R']
-        print self.GetItemValueFromDescription(self.bom[25])
+#         for item in self.bomByDesignator['R']:
+#             print item
+            
+        
+        self.SortItemsByValue(bom.bomByDesignator['R'])
+        self.SortItemsByValue(bom.bomByDesignator['C'])
+        self.SortItemsByValue(bom.bomByDesignator['L'])
+        for item in bom.bomByDesignator['R']:
+            print item
+        
+    
     
     def SortBomByDesignatorType(self):        
         for item in self.bom:
             self.bomByDesignator[self.GetDesignatorType(item[0][0])].append(item)        
     
+    
     def SortItemsByValue(self, items):
-        dic = dict()
+        sortableDic = defaultdict(list)
+        nonSortableList = []
         tempList = list()
         for item in items:
-            dic[self.GetItemValueFromDescription(item)] = item
+            if self.IsItemAbleToSort(item):                
+                sortableDic[self.GetItemValueFromDescription(item)].append(item)
+            else:
+                nonSortableList.append(item)
         
-        diclist = sorted(dic.keys())
-        for item in diclist:
-            tempList.append(dic[item])
+        dicList = sorted(sortableDic.keys())
+        for item in dicList:       
+            for lowItem in sortableDic[item]:
+                tempList.append(lowItem)
+        
+        for item in nonSortableList:
+            tempList.append(item)
 
         for i, item in enumerate(items):
             items[i] = tempList[i]        
+            
+            
+    def IsItemAbleToSort(self, item):
+        stringValue = item[2].partition(' ')[0]
+        if stringValue and stringValue[0].isdigit():
+            return True
+        else:
+            return False
+    
     
     def GetItemValueFromDescription(self, item):
         description = item[2]
@@ -142,7 +170,7 @@ class Bom:
     
     
     def MergeItemWithItemInBom(self, itemInBom, itemToMerge):
-        itemInBom[0].append(itemToMerge[0])
+        itemInBom[0].append(itemToMerge[0][0])
         self.IncrementItemNumberInBomItem(itemInBom)
         
     def IncrementItemNumberInBomItem(self, item):
@@ -159,17 +187,20 @@ class Bom:
         else:
             return False
 
+
     def TryMergeItemWithItemInBom(self, item):
         for itemInBom in self.bom:                
             if self.IsItemHasSamePackageAndValue(itemInBom, item):
                 self.MergeItemWithItemInBom(itemInBom, item)                    
                 return True
     
+    
     def GetDesignatorType(self, designator):
         for char in designator:
             if(char.isdigit()):
                 designatorType = designator.partition(char)
                 return designatorType[0]
+    
     
     def GetUniqueDesignetorTypeList(self):
         uniqueDesigantorTypeList = []
@@ -188,6 +219,9 @@ class ConvertUnits:
             'u' : 1E-6,
             'n' : 1E-9,
             'p' : 1E-12,
+            'R' : 1,
+            'F' : 1,
+            'H' : 1,
         }
     
     @staticmethod
@@ -202,7 +236,10 @@ class ConvertUnits:
             else:
                 fractionString += stringValue[i]
         
-        return float(fractionString) * metricPrefix
+        if not metricPrefix:
+            return stringValue
+        else:            
+            return float(fractionString) * metricPrefix
     
     @staticmethod
     def IsMetricPrefix(char):
