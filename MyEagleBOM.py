@@ -12,8 +12,8 @@ from collections import defaultdict
 fileName = sys.argv[1:]
 scritDirectory = os.path.dirname(sys.argv[0])
 
-fileName.append("Fingerprint_Sensor_Button_HW.csv")
-fileName.append("Fingerprint_Sensor_Button_HW2.csv")
+# fileName.append("Fingerprint_Sensor_Button_HW.csv")
+# fileName.append("Fingerprint_Sensor_Button_HW2.csv")
       
 def OpenCsvFile(fileName):
     with open(fileName, 'rt') as csvfile:
@@ -32,8 +32,7 @@ def MergeCsvFilesToOneObject(csvFileList):
                     if i > 0:
                         csvObject.append(item)
                 else:
-                    csvObject.append(item)
-            
+                    csvObject.append(item)            
     return csvObject
         
         
@@ -90,8 +89,7 @@ class Bom:
         item.append([csvRow[0]])
         item.append(1)
         item.append(csvRow[1])
-        item.append(csvRow[3])
-        
+        item.append(csvRow[3])        
         return item
     
     def InsertItem(self, item):
@@ -102,8 +100,7 @@ class Bom:
         for bomItem in self.bom:
             for designator in bomItem[0]:
                 if (designator == item[0][0]):
-                    itemInList = True
-        
+                    itemInList = True        
         return itemInList
     
     def IsItemHasSamePackageAndValue(self, item1, item2):
@@ -158,8 +155,7 @@ class Bom:
     
     def GetItemValueFromDescription(self, item):
         description = item[2]
-        value = description.partition(' ')[0]
-        
+        value = description.partition(' ')[0]        
         return ConvertUnits.ToNumericValue(value)
     
     
@@ -218,6 +214,7 @@ class ExportBom:
     def __init__(self, bom):
         self.bom = bom 
     
+    
     def WriteCsv(self, fileName):
         csvout = csv.writer(open(scritDirectory + '\\' + fileName + ".csv", "wb"), delimiter=';')
         csvout.writerow(("Designator", "Quantity", "Description", "Package"))
@@ -233,7 +230,6 @@ class ExportBom:
         row.append(item[1])
         row.append(item[2])
         row.append(item[3])
-        
         return row
         
         
@@ -241,7 +237,6 @@ class ExportBom:
         designatorsString = ""
         for designator in item[0]:
             designatorsString += designator + ', '
-            
         return designatorsString[:-2]
 
 
@@ -278,12 +273,14 @@ class ConvertUnits:
         else:            
             return float(fractionString) * metricPrefix
     
+    
     @staticmethod
     def IsMetricPrefix(char):
         if char.isdigit() == False:
             return True
         else:
             return False
+        
         
     @staticmethod
     def GetMetricPrefixValue(char):
