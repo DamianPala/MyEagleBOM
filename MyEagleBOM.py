@@ -12,13 +12,8 @@ from collections import defaultdict
 fileName = sys.argv[1:]
 scritDirectory = os.path.dirname(sys.argv[0])
 
-
-def OpenCsvFile(filename):
-    with open(filename, 'rt') as csvfile:
-        reader = csv.reader(csvfile, delimiter = ';')
-        reader = list(reader)
-    return reader
-        
+# fileName.append("Fingerprint_Sensor_Button_HW.csv")
+      
         
 class Bom:
 #     In CSV
@@ -29,8 +24,15 @@ class Bom:
     bom = []
     bomByDesignator = defaultdict(list)
     
-    def __init__(self, csvFile=None):
-        self.csvFile = csvFile  
+    def __init__(self, fileName=None):
+        if fileName != None:
+            self.csvFile = self.OpenCsvFile(fileName)  
+    
+    def OpenCsvFile(self, filename):
+        with open(filename, 'rt') as csvfile:
+            reader = csv.reader(csvfile, delimiter = ';')
+            reader = list(reader)
+        return reader
     
     def CreateBom(self):       
         "Delete header row"
@@ -268,7 +270,7 @@ def show_exception_and_exit(exc_type, exc_value, tb):
 sys.excepthook = show_exception_and_exit
 
 if fileName:
-    bom = Bom(OpenCsvFile(fileName[0]))
+    bom = Bom(fileName[0])
     bom.CreateBom()
     exportBom = ExportBom(bom)
     exportBom.WriteCsv("Bom")
