@@ -43,6 +43,12 @@ class Bom:
 #     In BOM should be
 #     C2    1    1u 25V    C1206
 
+    designatorBlackList = [
+        'GND',
+        'FID',
+        'POW',
+        ]
+
     bom = []
     bomByDesignator = defaultdict(list)
     
@@ -161,16 +167,27 @@ class Bom:
         itemInBom[0].append(itemToMerge[0][0])
         self.IncrementItemNumberInBomItem(itemInBom)
         
+        
     def IncrementItemNumberInBomItem(self, item):
         item[1] += 1
     
+    
     def TryInsertItemIntoBom(self, item):
-        if self.TryMergeItemWithItemInBom(item):
+        if not self.IsOnBlackList(item):
+            if self.TryMergeItemWithItemInBom(item):
+                return True
+            else:
+                self.InsertItem(item)
+                return True
+        
+
+    def IsOnBlackList(self, item):
+        designator = self.GetDesignatorType(item[0][0])        
+        if designator in self.designatorBlackList:
             return True
         else:
-            self.InsertItem(item)
-            return True
-
+            return False
+        
 
     def TryMergeItemWithItemInBom(self, item):
         for itemInBom in self.bom:                
