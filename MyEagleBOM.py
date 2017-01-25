@@ -4,20 +4,20 @@ Created on 19.01.2017
 @author: Haz
 '''
 import csv
+import sys
+import os
 from collections import defaultdict
 
-filename = 'Fingerprint_Sensor_Button_HW'
+
+fileName = sys.argv[1:]
+scritDirectory = os.path.dirname(sys.argv[0])
+
 
 def OpenCsvFile(filename):
-    with open(filename + '.csv', 'rt') as csvfile:
+    with open(filename, 'rt') as csvfile:
         reader = csv.reader(csvfile, delimiter = ';')
         reader = list(reader)
     return reader
-
-class ElementRowsWithSamePackage:
-    elementRowWithSamePackage = []
-    def __del__(self):
-        print "deling", self
         
         
 class Bom:
@@ -42,11 +42,11 @@ class Bom:
             
         self.SortBom()
         
+
+    def PrintBom(self):
         for itemBom in self.bomByDesignator:
             for item in self.bomByDesignator[itemBom]:
                 print item
-
-
     
     def GetDesignator(self, rowNum):
         return self.bom[rowNum][0] 
@@ -186,8 +186,8 @@ class ExportBom:
     def __init__(self, bom):
         self.bom = bom 
     
-    def WriteCsv(self):
-        csvout = csv.writer(open("mydata.csv", "wb"), delimiter=';')
+    def WriteCsv(self, fileName):
+        csvout = csv.writer(open(scritDirectory + '\\' + fileName + ".csv", "wb"), delimiter=';')
         csvout.writerow(("Designator", "Quantity", "Description", "Package"))
         
         for itemBom in self.bom.bomByDesignator:
@@ -258,11 +258,20 @@ class ConvertUnits:
         return ConvertUnits.metricPrefixValues.get(char, 'None')
 
 
-  
-bom = Bom(OpenCsvFile(filename))
-bom.CreateBom()
-exportBom = ExportBom(bom)
-exportBom.WriteCsv()
+
+def show_exception_and_exit(exc_type, exc_value, tb):
+    import traceback
+    traceback.print_exception(exc_type, exc_value, tb)
+    raw_input("Press key to exit.")
+    sys.exit(-1)
+
+sys.excepthook = show_exception_and_exit
+
+if fileName:
+    bom = Bom(OpenCsvFile(fileName[0]))
+    bom.CreateBom()
+    exportBom = ExportBom(bom)
+    exportBom.WriteCsv("Bom")
 
 
 
