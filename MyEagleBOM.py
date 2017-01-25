@@ -29,7 +29,7 @@ class Bom:
     bom = []
     bomByDesignator = defaultdict(list)
     
-    def __init__(self, csvFile):
+    def __init__(self, csvFile=None):
         self.csvFile = csvFile  
     
     def CreateBom(self):       
@@ -45,6 +45,7 @@ class Bom:
         for itemBom in self.bomByDesignator:
             for item in self.bomByDesignator[itemBom]:
                 print item
+
 
     
     def GetDesignator(self, rowNum):
@@ -178,6 +179,40 @@ class Bom:
         return uniqueDesigantorTypeList
         
         
+        
+class ExportBom:
+    bom = Bom()
+    
+    def __init__(self, bom):
+        self.bom = bom 
+    
+    def WriteCsv(self):
+        csvout = csv.writer(open("mydata.csv", "wb"), delimiter=';')
+        csvout.writerow(("Designator", "Quantity", "Description", "Package"))
+        
+        for itemBom in self.bom.bomByDesignator:
+            for item in self.bom.bomByDesignator[itemBom]:
+                csvout.writerow(self.PrepareRowFromItem(item))
+        
+        
+    def PrepareRowFromItem(self, item):
+        row = []
+        row.append(self.GetDesignatorsString(item))
+        row.append(item[1])
+        row.append(item[2])
+        row.append(item[3])
+        
+        return row
+        
+        
+    def GetDesignatorsString(self, item):
+        designatorsString = ""
+        for designator in item[0]:
+            designatorsString += designator + ', '
+            
+        return designatorsString[:-2]
+
+
 class ConvertUnits:
     metricPrefixValues = {
             'G' : 1E9,
@@ -226,3 +261,9 @@ class ConvertUnits:
   
 bom = Bom(OpenCsvFile(filename))
 bom.CreateBom()
+exportBom = ExportBom(bom)
+exportBom.WriteCsv()
+
+
+
+
