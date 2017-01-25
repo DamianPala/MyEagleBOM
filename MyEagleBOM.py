@@ -1,7 +1,7 @@
 '''
 Created on 19.01.2017
 
-@author: Haz
+@author: Damian Pala
 '''
 import csv
 import sys
@@ -148,15 +148,11 @@ class Bom:
         item[1] += 1
     
     def TryInsertItemIntoBom(self, item):
-        if (self.IsThisItemInBom(item) == False):
-            if self.TryMergeItemWithItemInBom(item):
-                return True
-            else:
-                self.InsertItem(item)
-
+        if self.TryMergeItemWithItemInBom(item):
             return True
         else:
-            return False
+            self.InsertItem(item)
+            return True
 
 
     def TryMergeItemWithItemInBom(self, item):
