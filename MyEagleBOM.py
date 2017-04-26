@@ -70,19 +70,24 @@ class Bom:
     def PrintBom(self):
         for itemBom in self.bomByDesignator:
             for item in self.bomByDesignator[itemBom]:
-                print item
+                print(item)
+    
     
     def GetDesignator(self, rowNum):
         return self.bom[rowNum][0] 
 
+
     def GetQuantity(self, rowNum):
         return self.bom[rowNum][1]
+
     
     def GetValue(self, rowNum):
         return self.bom[rowNum][2]
+
     
     def GetPavkage(self, rowNum):
         return self.bom[rowNum][3]
+
     
     def GetItemFromCsvRow(self, csvRow):
         item = []
@@ -92,8 +97,10 @@ class Bom:
         item.append(csvRow[3])        
         return item
     
+    
     def InsertItem(self, item):
         self.bom.append(item)
+    
     
     def IsThisItemInBom(self, item):
         itemInList = False
@@ -102,17 +109,10 @@ class Bom:
                 if (designator == item[0][0]):
                     itemInList = True        
         return itemInList
-    
-    def IsItemHasSamePackageAndValue(self, item1, item2):
-        if (item1[2] == item2[2]) and (item1[3] == item2[3]):
-            return True
-        else:
-            return False
         
         
     def SortBom(self):
-        self.SortBomByDesignatorType()
-        
+        self.SortBomByDesignatorType()        
         self.SortItemsByValue(self.bomByDesignator['R'])
         self.SortItemsByValue(self.bomByDesignator['C'])
         self.SortItemsByValue(self.bomByDesignator['L'])       
@@ -157,16 +157,7 @@ class Bom:
         description = item[2]
         value = description.partition(' ')[0]        
         return ConvertUnits.ToNumericValue(value)
-    
-    
-    def MergeItemWithItemInBom(self, itemInBom, itemToMerge):
-        itemInBom[0].append(itemToMerge[0][0])
-        self.IncrementItemNumberInBomItem(itemInBom)
-        
-        
-    def IncrementItemNumberInBomItem(self, item):
-        item[1] += 1
-    
+       
     
     def TryInsertItemIntoBom(self, item):
         if not self.IsOnBlackList(item):
@@ -191,6 +182,22 @@ class Bom:
                 self.MergeItemWithItemInBom(itemInBom, item)                    
                 return True
     
+    
+    def IsItemHasSamePackageAndValue(self, item1, item2):
+        if (item1[2] == item2[2]) and (item1[3] == item2[3]):
+            return True
+        else:
+            return False
+        
+           
+    def MergeItemWithItemInBom(self, itemInBom, itemToMerge):
+        itemInBom[0].append(itemToMerge[0][0])
+        self.IncrementItemNumberInBomItem(itemInBom)
+    
+        
+    def IncrementItemNumberInBomItem(self, item):
+        item[1] += 1
+        
     
     def GetDesignatorType(self, designator):
         for char in designator:
