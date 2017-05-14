@@ -1,13 +1,15 @@
 '''
-Created on 19.01.2017
-
-@author: Damian Pala
+@brief      Script to creating BOM from eagle generated partlist.
+        
+@author     Damian Pala
+@date       19.01.2017
 '''
 
 import csv
 import sys
 import os
 from collections import defaultdict
+from enum import Enum
       
 def OpenCsvFile(fileName):
     with open(fileName, 'rt') as csvfile:
@@ -16,7 +18,7 @@ def OpenCsvFile(fileName):
     return reader
 
 
-def MergeCsvFilesToOneObject(csvFileList):
+def MergeCsvFilesToOneObjectNoRowMerge(csvFileList):
     csvObject = []
     for fileIterator, csvFile in enumerate(csvFileList):
         with open(csvFile, 'rt') as csvfile:
@@ -28,8 +30,20 @@ def MergeCsvFilesToOneObject(csvFileList):
                 else:
                     csvObject.append(item)            
     return csvObject
-        
-        
+
+
+def show_exception_and_exit(exc_type, exc_value, tb):
+    import traceback
+    traceback.print_exception(exc_type, exc_value, tb)
+    input("Press key to exit.")
+    sys.exit(-1)
+
+
+class InputFileType(Enum):
+    PART_LIST = 1
+    BOM_FILE = 2
+
+
 class Bom:
 #     In CSV
 #     C2    1u 25V    C-EUC1206    C1206    CAPACITOR, European symbol    
@@ -50,12 +64,12 @@ class Bom:
             self.csvFile = csvFile   
 
     
-    def CreateBom(self):       
+    def CreateBom(self, input_file_type):       
         """Delete header row"""
         del self.csvFile[0]
 
         for row in self.csvFile:
-            item = self.GetItemFromCsvRow(row)
+            item = self.GetItemFromCsvRow(row, input_file_type)
             self.TryInsertItemIntoBom(item)
             
         self.SortBom()
@@ -83,12 +97,19 @@ class Bom:
         return self.bom[rowNum][3]
 
     
-    def GetItemFromCsvRow(self, csvRow):
-        item = []
-        item.append([csvRow[0]])
-        item.append(1)
-        item.append(csvRow[1])
-        item.append(csvRow[3])        
+    def GetItemFromCsvRow(self, csvRow, input_file_type):
+        if input_file_type == InputFileType.PART_LIST:
+            item = []
+            item.append([csvRow[0]])
+            item.append(1)
+            item.append(csvRow[1])
+            item.append(csvRow[3])
+        elif input_file_type == InputFileType.BOM_FILE:
+            item = []
+            item.append([csvRow[0]])
+            item.append(int(csvRow[1]))
+            item.append(csvRow[2])
+            item.append(csvRow[3])
         return item
     
     
@@ -216,6 +237,7 @@ class ExportBom:
     
     
     def WriteCsv(self, fileName):
+        scritDirectory = os.path.dirname(sys.argv[0])
         csvout = csv.writer(open(os.path.join(scritDirectory, fileName + ".csv"), "w", newline=''), delimiter=';')
         csvout.writerow(("Designator", "Quantity", "Description", "Package"))
         
@@ -287,34 +309,24 @@ class ConvertUnits:
         return ConvertUnits.metricPrefixValues.get(char, 'None')
 
 
-
-def show_exception_and_exit(exc_type, exc_value, tb):
-    import traceback
-    traceback.print_exception(exc_type, exc_value, tb)
-    input("Press key to exit.")
-    sys.exit(-1)
-
-
 if __name__ == "__main__":
     sys.excepthook = show_exception_and_exit
     fileName = sys.argv[1:]
-    scritDirectory = os.path.dirname(sys.argv[0])
-    
-    # fileName.append("Recorder_Mobo.csv")
-    # fileName.append("Fingerprint_Sensor_Button_HW.csv")
-    # fileName.append("bom1.csv")
-    # fileName.append("bom2.csv")
+
+#     fileName.append("Fingerprint_Sensor_Button_HW.csv")
+#     fileName.append("Fingerprint_Sensor_Button_HW2.csv")    
+#     fileName.append("Recorder_Mobo.csv")
 
     if len(fileName) == 1:
         csvFile = OpenCsvFile(fileName[0])
         bom = Bom(csvFile)
-        bom.CreateBom()
+        bom.CreateBom(InputFileType.PART_LIST)
         exportBom = ExportBom(bom)
         exportBom.WriteCsv("Bom")
     elif len(fileName) > 1:
-        csvFile = MergeCsvFilesToOneObject(fileName)
+        csvFile = MergeCsvFilesToOneObjectNoRowMerge(fileName)
         bom = Bom(csvFile)
-        bom.CreateBom()
+        bom.CreateBom(InputFileType.PART_LIST)
         exportBom = ExportBom(bom)
         exportBom.WriteCsv("Bom")
     else:
