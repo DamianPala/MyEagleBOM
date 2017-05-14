@@ -3,17 +3,11 @@ Created on 19.01.2017
 
 @author: Damian Pala
 '''
+
 import csv
 import sys
 import os
 from collections import defaultdict
-
-
-fileName = sys.argv[1:]
-scritDirectory = os.path.dirname(sys.argv[0])
-
-# fileName.append("Recorder_Mobo.csv")
-# fileName.append("Fingerprint_Sensor_Button_HW.csv")
       
 def OpenCsvFile(fileName):
     with open(fileName, 'rt') as csvfile:
@@ -214,7 +208,6 @@ class Bom:
         return uniqueDesigantorTypeList
         
         
-        
 class ExportBom:
     bom = Bom()
     
@@ -301,9 +294,17 @@ def show_exception_and_exit(exc_type, exc_value, tb):
     input("Press key to exit.")
     sys.exit(-1)
 
-sys.excepthook = show_exception_and_exit
 
 if __name__ == "__main__":
+    sys.excepthook = show_exception_and_exit
+    fileName = sys.argv[1:]
+    scritDirectory = os.path.dirname(sys.argv[0])
+    
+    # fileName.append("Recorder_Mobo.csv")
+    # fileName.append("Fingerprint_Sensor_Button_HW.csv")
+    # fileName.append("bom1.csv")
+    # fileName.append("bom2.csv")
+
     if len(fileName) == 1:
         csvFile = OpenCsvFile(fileName[0])
         bom = Bom(csvFile)
@@ -318,7 +319,4 @@ if __name__ == "__main__":
         exportBom.WriteCsv("Bom")
     else:
         """Do nothing"""
-
-
-
 
