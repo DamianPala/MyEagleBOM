@@ -261,6 +261,15 @@ class ExportBom:
             designatorsString += designator + ', '
         return designatorsString[:-2]
 
+    
+    def create_new_bom_filename(self, input_files_list):
+        new_file_name = ""
+        for item in input_files_list:
+            new_file_name += os.path.splitext(os.path.basename(item))[0] + "_"
+            
+        new_file_name += "bom.csv"
+        
+        return new_file_name
 
 class ConvertUnits:
     metricPrefixValues = {
@@ -322,13 +331,13 @@ if __name__ == "__main__":
         bom = Bom(csvFile)
         bom.CreateBom(InputFileType.PART_LIST)
         exportBom = ExportBom(bom)
-        exportBom.WriteCsv("Bom")
+        exportBom.WriteCsv(exportBom.create_new_bom_filename(fileName))
     elif len(fileName) > 1:
         csvFile = MergeCsvFilesToOneObjectNoRowMerge(fileName)
         bom = Bom(csvFile)
         bom.CreateBom(InputFileType.PART_LIST)
         exportBom = ExportBom(bom)
-        exportBom.WriteCsv("Bom")
+        exportBom.WriteCsv(exportBom.create_new_bom_filename(fileName))
     else:
         """Do nothing"""
 
