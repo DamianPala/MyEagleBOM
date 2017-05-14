@@ -1,0 +1,9 @@
+Part;Value;Device;Package;Description
+B1;DBS103G;DBS103G;DBS;Single Phase 1.0 AMP Glass Passivated Bridge Rectifier
+C1;470u 25V;CPOL-EUE5-10.5;E5-10,5;POLARIZED CAPACITOR, European symbol
+C1;470u 25V;CPOL-EUE5-10.5;E5-10,5;POLARIZED CAPACITOR, European symbol
+C2;1u 25V;C-EUC1206;C1206;CAPACITOR, European symbol
+C3;100n;C-EUC0603;C0603;CAPACITOR, European symbol
+C4;10u 6V3;C-EUC1206;C1206;CAPACITOR, European symbol
+C47;10u 6V3;C-EUC1206;C1206;CAPACITOR, European symbol
+C55;10u 6V3;C-EUC1206;C1206;CAPACITOR, European symbol

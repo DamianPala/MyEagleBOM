@@ -13,7 +13,7 @@ fileName = sys.argv[1:]
 scritDirectory = os.path.dirname(sys.argv[0])
 
 # fileName.append("Recorder_Mobo.csv")
-fileName.append("Fingerprint_Sensor_Button_HW.csv")
+# fileName.append("Fingerprint_Sensor_Button_HW.csv")
       
 def OpenCsvFile(fileName):
     with open(fileName, 'rt') as csvfile:
@@ -223,7 +223,7 @@ class ExportBom:
     
     
     def WriteCsv(self, fileName):
-        csvout = csv.writer(open(scritDirectory + '\\' + fileName + ".csv", "wb"), delimiter=';')
+        csvout = csv.writer(open(os.path.join(scritDirectory, fileName + ".csv"), "w", newline=''), delimiter=';')
         csvout.writerow(("Designator", "Quantity", "Description", "Package"))
         
         for itemBom in self.bom.bomByDesignator:
@@ -298,25 +298,26 @@ class ConvertUnits:
 def show_exception_and_exit(exc_type, exc_value, tb):
     import traceback
     traceback.print_exception(exc_type, exc_value, tb)
-    raw_input("Press key to exit.")
+    input("Press key to exit.")
     sys.exit(-1)
 
 sys.excepthook = show_exception_and_exit
 
-if len(fileName) == 1:
-    csvFile = OpenCsvFile(fileName[0])
-    bom = Bom(csvFile)
-    bom.CreateBom()
-    exportBom = ExportBom(bom)
-    exportBom.WriteCsv("Bom")
-elif len(fileName) > 1:
-    csvFile = MergeCsvFilesToOneObject(fileName)
-    bom = Bom(csvFile)
-    bom.CreateBom()
-    exportBom = ExportBom(bom)
-    exportBom.WriteCsv("Bom")
-else:
-    """Do nothing"""
+if __name__ == "__main__":
+    if len(fileName) == 1:
+        csvFile = OpenCsvFile(fileName[0])
+        bom = Bom(csvFile)
+        bom.CreateBom()
+        exportBom = ExportBom(bom)
+        exportBom.WriteCsv("Bom")
+    elif len(fileName) > 1:
+        csvFile = MergeCsvFilesToOneObject(fileName)
+        bom = Bom(csvFile)
+        bom.CreateBom()
+        exportBom = ExportBom(bom)
+        exportBom.WriteCsv("Bom")
+    else:
+        """Do nothing"""
 
 
 
