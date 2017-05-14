@@ -12,8 +12,8 @@ from collections import defaultdict
 fileName = sys.argv[1:]
 scritDirectory = os.path.dirname(sys.argv[0])
 
-# fileName.append("Fingerprint_Sensor_Button_HW.csv")
-# fileName.append("Fingerprint_Sensor_Button_HW2.csv")
+# fileName.append("Recorder_Mobo.csv")
+fileName.append("Fingerprint_Sensor_Button_HW.csv")
       
 def OpenCsvFile(fileName):
     with open(fileName, 'rt') as csvfile:
