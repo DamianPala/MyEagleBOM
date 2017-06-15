@@ -238,7 +238,7 @@ class ExportBom:
     
     def WriteCsv(self, fileName):
         scritDirectory = os.path.dirname(sys.argv[0])
-        csvout = csv.writer(open(os.path.join(scritDirectory, fileName + ".csv"), "w", newline=''), delimiter=';')
+        csvout = csv.writer(open(os.path.join(scritDirectory, fileName), "w", newline=''), delimiter=';')
         csvout.writerow(("Designator", "Quantity", "Description", "Package"))
         
         for itemBom in self.bom.bomByDesignator:
