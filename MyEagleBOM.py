@@ -48,7 +48,7 @@ class Bom:
 #     In CSV
 #     C2    1u 25V    C-EUC1206    C1206    CAPACITOR, European symbol    
 #     In BOM should be
-#     C2    1    1u 25V    C1206
+#     C2    1    1u 25V    C1206    CAPACITOR, European symbol
 
     designatorBlackList = [
         'GND',
@@ -93,8 +93,11 @@ class Bom:
         return self.bom[rowNum][2]
 
     
-    def GetPavkage(self, rowNum):
+    def GetPackage(self, rowNum):
         return self.bom[rowNum][3]
+    
+    def GetNotes(self, rowNum):
+        return self.bom[rowNum][4]
 
     
     def GetItemFromCsvRow(self, csvRow, input_file_type):
@@ -104,12 +107,14 @@ class Bom:
             item.append(1)
             item.append(csvRow[1])
             item.append(csvRow[3])
+            item.append(csvRow[4])
         elif input_file_type == InputFileType.BOM_FILE:
             item = []
             item.append([csvRow[0]])
             item.append(int(csvRow[1]))
             item.append(csvRow[2])
             item.append(csvRow[3])
+            item.append(csvRow[4])
         return item
     
     
@@ -207,12 +212,19 @@ class Bom:
            
     def MergeItemWithItemInBom(self, itemInBom, itemToMerge):
         itemInBom[0].append(itemToMerge[0][0])
-        self.IncrementItemNumberInBomItem(itemInBom)
-    
+        itemInBom[1] = itemInBom[1] + itemToMerge[1]
         
-    def IncrementItemNumberInBomItem(self, item):
-        item[1] += 1
-        
+        if itemToMerge[4] != itemInBom[4]:
+            if itemToMerge[4] != "":
+                if itemInBom[4] != "":
+                    itemInBom[4] = itemInBom[4] + ", " + itemToMerge[4]
+                else:
+                    itemInBom[4] = itemToMerge[4]
+            else:
+                itemInBom[4] = itemInBom[4]
+        else:
+            itemInBom[4] = itemInBom[4]
+
     
     def GetDesignatorType(self, designator):
         for char in designator:
@@ -239,7 +251,7 @@ class ExportBom:
     def WriteCsv(self, fileName):
         scritDirectory = os.path.dirname(sys.argv[0])
         csvout = csv.writer(open(os.path.join(scritDirectory, fileName), "w", newline=''), delimiter=';')
-        csvout.writerow(("Designator", "Quantity", "Description", "Package"))
+        csvout.writerow(("Designator", "Quantity", "Description", "Package", "Notes"))
         
         for itemBom in self.bom.bomByDesignator:
             for item in self.bom.bomByDesignator[itemBom]:
@@ -252,6 +264,7 @@ class ExportBom:
         row.append(item[1])
         row.append(item[2])
         row.append(item[3])
+        row.append(item[4])
         return row
         
         
