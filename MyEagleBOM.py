@@ -1,5 +1,7 @@
 '''
 @brief      Script to creating BOM from eagle generated partlist.
+
+                Every BOM or Partlist used by this script must have header row.
         
 @author     Damian Pala
 @date       19.01.2017
