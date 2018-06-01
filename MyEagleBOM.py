@@ -58,13 +58,13 @@ class Bom:
         'POW',
         ]
 
-    bom = []
-    bomByDesignator = defaultdict(list)
-    
+
     def __init__(self, csvFile=None):
         if csvFile != None:
             self.csvFile = csvFile   
-
+            
+        self.bom = []
+        self.bomByDesignator = defaultdict(list)
     
     def CreateBom(self, input_file_type):       
         """Delete header row"""
@@ -97,9 +97,14 @@ class Bom:
     
     def GetPackage(self, rowNum):
         return self.bom[rowNum][3]
+
+    
+    def GetReplacements(self, rowNum):
+        return self.bom[rowNum][4]
+    
     
     def GetNotes(self, rowNum):
-        return self.bom[rowNum][4]
+        return self.bom[rowNum][5]
 
     
     def GetItemFromCsvRow(self, csvRow, input_file_type):
@@ -110,6 +115,7 @@ class Bom:
             item.append(csvRow[1])
             item.append(csvRow[3])
             item.append(csvRow[4])
+            item.append(csvRow[5])
         elif input_file_type == InputFileType.BOM_FILE:
             item = []
             item.append([csvRow[0]])
@@ -117,6 +123,7 @@ class Bom:
             item.append(csvRow[2])
             item.append(csvRow[3])
             item.append(csvRow[4])
+            item.append(csvRow[5])
         return item
     
     
@@ -215,17 +222,23 @@ class Bom:
     def MergeItemWithItemInBom(self, itemInBom, itemToMerge):
         itemInBom[0].append(itemToMerge[0][0])
         itemInBom[1] = itemInBom[1] + itemToMerge[1]
+        itemInBom[4] = self.MergeCell(itemInBom[4], itemToMerge[4])
+        itemInBom[5] = self.MergeCell(itemInBom[5], itemToMerge[5])
         
-        if itemToMerge[4] != itemInBom[4]:
-            if itemToMerge[4] != "":
-                if itemInBom[4] != "":
-                    itemInBom[4] = itemInBom[4] + ", " + itemToMerge[4]
+
+    def MergeCell(self, cell_in_bom, cell_to_merge):
+        if cell_to_merge != cell_in_bom:
+            if cell_to_merge != "":
+                if cell_in_bom != "":
+                    cell_in_bom = cell_in_bom + ", " + cell_to_merge
                 else:
-                    itemInBom[4] = itemToMerge[4]
+                    cell_in_bom = cell_to_merge
             else:
-                itemInBom[4] = itemInBom[4]
+                cell_in_bom = cell_in_bom
         else:
-            itemInBom[4] = itemInBom[4]
+            cell_in_bom = cell_in_bom
+            
+        return cell_in_bom
 
     
     def GetDesignatorType(self, designator):
@@ -244,8 +257,6 @@ class Bom:
         
         
 class ExportBom:
-    bom = Bom()
-    
     def __init__(self, bom):
         self.bom = bom 
     
@@ -253,7 +264,7 @@ class ExportBom:
     def WriteCsv(self, fileName):
         scritDirectory = os.path.dirname(sys.argv[0])
         csvout = csv.writer(open(os.path.join(scritDirectory, fileName), "w", newline=''), delimiter=';')
-        csvout.writerow(("Designator", "Quantity", "Description", "Package", "Notes"))
+        csvout.writerow(("Designator", "Quantity", "Description", "Package", "Replacements", "Notes"))
         
         for itemBom in self.bom.bomByDesignator:
             for item in self.bom.bomByDesignator[itemBom]:
@@ -267,6 +278,7 @@ class ExportBom:
         row.append(item[2])
         row.append(item[3])
         row.append(item[4])
+        row.append(item[5])
         return row
         
         
