@@ -105,6 +105,10 @@ class Bom:
     
     def GetNotes(self, rowNum):
         return self.bom[rowNum][5]
+    
+    
+    def GetSpare(self, rowNum):
+        return self.bom[rowNum][6]
 
     
     def GetItemFromCsvRow(self, csvRow, input_file_type):
@@ -116,6 +120,7 @@ class Bom:
             item.append(csvRow[3])
             item.append(csvRow[4])
             item.append(csvRow[5])
+            item.append(csvRow[6])
         elif input_file_type == InputFileType.BOM_FILE:
             item = []
             item.append([csvRow[0]])
@@ -124,6 +129,7 @@ class Bom:
             item.append(csvRow[3])
             item.append(csvRow[4])
             item.append(csvRow[5])
+            item.append(csvRow[6])
         return item
     
     
@@ -224,6 +230,8 @@ class Bom:
         itemInBom[1] = itemInBom[1] + itemToMerge[1]
         itemInBom[4] = self.MergeCell(itemInBom[4], itemToMerge[4])
         itemInBom[5] = self.MergeCell(itemInBom[5], itemToMerge[5])
+        if (itemInBom[6] != itemToMerge[6]) and (itemInBom[6] != "") and (itemToMerge[6] != ""):
+            itemInBom[6] = "REL"
         
 
     def MergeCell(self, cell_in_bom, cell_to_merge):
@@ -264,7 +272,7 @@ class ExportBom:
     def WriteCsv(self, fileName):
         scritDirectory = os.path.dirname(sys.argv[0])
         csvout = csv.writer(open(os.path.join(scritDirectory, fileName), "w", newline=''), delimiter=';')
-        csvout.writerow(("Designator", "Quantity", "Description", "Package", "Replacements", "Notes"))
+        csvout.writerow(("Designator", "Quantity", "Description", "Package", "Replacements", "Notes", "Spare"))
         
         for itemBom in self.bom.bomByDesignator:
             for item in self.bom.bomByDesignator[itemBom]:
@@ -279,6 +287,7 @@ class ExportBom:
         row.append(item[3])
         row.append(item[4])
         row.append(item[5])
+        row.append(item[6])
         return row
         
         
