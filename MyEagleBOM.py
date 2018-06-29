@@ -118,18 +118,18 @@ class Bom:
             item.append(1)
             item.append(csvRow[1])
             item.append(csvRow[3])
-            item.append(csvRow[4])
-            item.append(csvRow[5])
-            item.append(csvRow[6])
+            item.append(csvRow[4]) if (len(csvRow) > 4) else item.append("")
+            item.append(csvRow[5]) if (len(csvRow) > 5) else item.append("")
+            item.append(csvRow[6]) if (len(csvRow) > 6) else item.append("") 
         elif input_file_type == InputFileType.BOM_FILE:
             item = []
             item.append([csvRow[0]])
             item.append(int(csvRow[1]))
             item.append(csvRow[2])
             item.append(csvRow[3])
-            item.append(csvRow[4])
-            item.append(csvRow[5])
-            item.append(csvRow[6])
+            item.append(csvRow[4]) if (len(csvRow) > 4) else item.append("")
+            item.append(csvRow[5]) if (len(csvRow) > 5) else item.append("")
+            item.append(csvRow[6]) if (len(csvRow) > 6) else item.append("")
         return item
     
     
@@ -361,6 +361,7 @@ if __name__ == "__main__":
 #     fileName.append("Fingerprint_Sensor_Button_HW.csv")
 #     fileName.append("Fingerprint_Sensor_Button_HW2.csv")    
 #     fileName.append("Recorder_Mobo.csv")
+#     fileName.append("Standard_Handle_Switch.csv")
 
     if len(fileName) == 1:
         csvFile = OpenCsvFile(fileName[0])
